@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- The name of the app -->
-    <string name="app_name">HTTP Shortcuts</string>
+    <string name="app_name">金成快捷</string>
     <!-- The name of the default category -->
     <string name="shortcuts">My Shortcuts</string>
     <!-- The name used as a fallback for shortcuts without a name -->
