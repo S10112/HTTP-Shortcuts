@@ -1,25 +1,36 @@
-name: Publish Documentation
+name: Build Android APK
+
 on:
-  push:
-    branches: [ overlord ]
+  workflow_dispatch:
+
 jobs:
-  deploy:
-    name: Deploy
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - name: setup python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
-    - name: Process files
-      run: |
-        python scripts/publish-docs.py
-    - name: Upload FTP
-      uses: sebastianpopp/ftp-action@releases/v2
-      with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        localDir: "processed-docs"
-        remoteDir: "."
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Make Gradlew Executable
+        working-directory: HTTPShortcuts
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        working-directory: HTTPShortcuts
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
+
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTTP-Shortcuts-Debug-APK
+          path: HTTPShortcuts/app/build/outputs/apk/debug/*.apk
